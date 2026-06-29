@@ -128,16 +128,18 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-// Simple logout using window.location.replace - most reliable method
+// Frontend production URL
+const FRONTEND_URL = 'https://uir-complaints-frontend.onrender.com'
+
+// Simple logout using full URL - most reliable method
 const handleLogout = () => {
-  // Clear all auth data
+  // Clear all auth data first
   localStorage.removeItem('token')
   authStore.user = null
   authStore.token = null
 
-  // Use window.location to navigate - this is the most reliable method
-  // It completely reloads the page and ensures all state is cleared
-  window.location.replace('/login')
+  // Use full URL to ensure correct navigation
+  window.location.replace(FRONTEND_URL + '/login')
 }
 
 // Skip auth check on mount to avoid unnecessary API calls
