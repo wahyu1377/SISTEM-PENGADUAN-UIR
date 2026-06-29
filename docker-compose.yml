@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uir_complaints_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - MONGODB_URL=${MONGODB_URL}
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (uncomment when frontend is ready)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: uir_complaints_frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - API_URL=http://backend:8000
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - backend
+
+volumes:
+  uploads_data:
