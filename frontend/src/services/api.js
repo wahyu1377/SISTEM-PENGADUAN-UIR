@@ -2,8 +2,10 @@ import axios from 'axios'
 
 // Handle VITE_API_URL with or without trailing slash
 const getBaseURL = () => {
-  if (import.meta.env.VITE_API_URL) {
-    const baseUrl = import.meta.env.VITE_API_URL.replace(/\/$/, '')
+  const envUrl = import.meta.env.VITE_API_URL
+  if (envUrl) {
+    // Remove trailing slash and add /api
+    const baseUrl = envUrl.replace(/\/+$/, '')
     return `${baseUrl}/api`
   }
   return '/api'
@@ -13,7 +15,9 @@ const api = axios.create({
   baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  // Increase timeout for production
+  timeout: 15000
 })
 
 // Request interceptor to add auth token
@@ -32,9 +36,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect if already on login page or if it's a logout request
+    const isLoginPage = window.location.pathname === '/login'
+    const isLogoutRequest = error.config?.url?.includes('/logout')
+
+    if (error.response?.status === 401 && !isLoginPage && !isLogoutRequest) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Only redirect if not already on login page
+      if (!isLoginPage) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

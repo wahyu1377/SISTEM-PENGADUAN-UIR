@@ -134,8 +134,29 @@ onMounted(async () => {
   }
 })
 
-const handleLogout = () => {
-  authStore.logout()
+const handleLogout = async () => {
+  // Clear token first before any API call
+  const token = localStorage.getItem('token')
+  localStorage.removeItem('token')
+  authStore.user = null
+  authStore.token = null
+
+  // Try to call logout API (optional, don't fail if it doesn't work)
+  try {
+    if (token) {
+      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+    }
+  } catch (e) {
+    // Ignore logout API errors, we already cleared the token
+  }
+
+  // Redirect to login
   window.location.href = '/login'
 }
 </script>

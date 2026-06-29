@@ -30,19 +30,24 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      // Clear state first
       this.user = null
       this.token = null
       localStorage.removeItem('token')
     },
 
     async checkAuth() {
-      if (this.token) {
-        try {
-          const response = await authService.getMe()
-          this.user = response.data
-        } catch (e) {
-          this.logout()
-        }
+      if (!this.token) {
+        return false
+      }
+      try {
+        const response = await authService.getMe()
+        this.user = response.data
+        return true
+      } catch (e) {
+        // Token invalid or expired - clear auth
+        this.logout()
+        return false
       }
     }
   }
