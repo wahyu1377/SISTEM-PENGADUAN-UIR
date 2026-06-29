@@ -61,18 +61,21 @@ class DatabaseManager:
         await cls.db.attachments.create_index("complaint_id")
         await cls.db.attachments.create_index("created_at")
 
-        # Vector search index for documents (for RAG)
-        try:
-            await cls.db.command({
-                "createSearchIndex": "documents",
-                "name": "vector_index",
-                "type": "vectorSearch",
-                "fields": [
-                    {"path": "embedding", "numDimensions": settings.EMBEDDING_DIMENSIONS, "similarity": "cosine"}
-                ]
-            })
-        except Exception as e:
-            print(f"Vector index might already exist: {e}")
+        # NOTE: Vector search disabled - requires MongoDB Atlas M10+ (paid tier)
+        # The RAG engine will fallback to text search when vector search is unavailable
+        # To enable vector search, upgrade to MongoDB Atlas M10+ and uncomment below:
+        #
+        # try:
+        #     await cls.db.command({
+        #         "createSearchIndex": "documents",
+        #         "name": "vector_index",
+        #         "type": "vectorSearch",
+        #         "fields": [
+        #             {"path": "embedding", "numDimensions": settings.EMBEDDING_DIMENSIONS, "similarity": "cosine"}
+        #         ]
+        #     })
+        # except Exception as e:
+        #     print(f"Vector index creation failed: {e}")
 
     @classmethod
     def get_db(cls) -> AsyncIOMotorDatabase:
