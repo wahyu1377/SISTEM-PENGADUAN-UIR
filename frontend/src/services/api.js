@@ -1,17 +1,12 @@
 import axios from 'axios'
 
 // API Base URL Configuration
-// FORCIBLY use hardcoded production URL to avoid environment variable issues
 const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com/api'
 
 const getBaseURL = () => {
   // Always use hardcoded production URL
-  // This ensures the app works regardless of environment variable issues
   return PRODUCTION_API_URL
 }
-
-// Flag to temporarily disable error handling (during logout)
-let isLoggingOut = false
 
 const api = axios.create({
   baseURL: getBaseURL(),
@@ -33,29 +28,15 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor for error handling
+// Response interceptor - simple error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If we're logging out, just reject without any redirect logic
-    if (isLoggingOut) {
-      return Promise.reject(error)
-    }
-
-    // Only clear token on 401, don't redirect
-    // Navigation will be handled by the component that made the request
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-    }
-
+    // Just reject the error - don't try to redirect
+    // Let the component that made the request handle the error
     return Promise.reject(error)
   }
 )
-
-// Export function to set logout state
-export const setLoggingOut = (value) => {
-  isLoggingOut = value
-}
 
 export const authService = {
   login: (data) => api.post('/auth/login', data),

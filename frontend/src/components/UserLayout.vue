@@ -82,9 +82,8 @@
 
 <script setup>
 import { onMounted, onUnmounted, computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { setLoggingOut } from '@/services/api'
 import {
   LayoutDashboard,
   FileText,
@@ -99,7 +98,6 @@ import { id } from 'date-fns/locale'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
-const isLoggingOut = ref(false)
 
 const userName = computed(() => authStore.user?.name || 'Mahasiswa')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
@@ -130,33 +128,20 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
+// Simple logout using window.location.replace - most reliable method
 const handleLogout = () => {
-  // Set flag BEFORE clearing token to prevent error redirect
-  setLoggingOut(true)
-
-  // Clear everything immediately
+  // Clear all auth data
   localStorage.removeItem('token')
   authStore.user = null
   authStore.token = null
 
-  // Use Vue Router to navigate (this properly unmounts components)
-  router.push('/login')
-
-  // Reset flag after navigation
-  setTimeout(() => {
-    setLoggingOut(false)
-  }, 1000)
+  // Use window.location to navigate - this is the most reliable method
+  // It completely reloads the page and ensures all state is cleared
+  window.location.replace('/login')
 }
 
+// Skip auth check on mount to avoid unnecessary API calls
 onMounted(async () => {
-  // Only check auth if we have a token but no user data
-  if (!authStore.user && authStore.token) {
-    await authStore.checkAuth()
-  }
-})
-
-onUnmounted(() => {
-  // Reset logout flag when component is unmounted
-  setLoggingOut(false)
+  // Don't auto-check auth on mount - let the route guards handle it
 })
 </script>
