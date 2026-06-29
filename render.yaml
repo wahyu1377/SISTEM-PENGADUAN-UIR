@@ -1,0 +1,49 @@
+# ===============================================
+# Render Blueprint for Backend
+# Sistem Pengaduan Mahasiswa UIR Berbasis RAG
+# ===============================================
+
+services:
+  # Backend API Service
+  - type: web
+    name: uir-complaints-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    region: singapore
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: uir_complaints
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: APP_NAME
+        value: Sistem Pengaduan Mahasiswa UIR Berbasis RAG
+
+  # Frontend Static Site
+  - type: web
+    name: uir-complaints-frontend
+    region: singapore
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: uir-complaints-backend
+          envVarKey: RENDER_EXTERNAL_URL
+        # Jika tidak ada fromService, gunakan nilai langsung:
+        # value: https://uir-complaints-backend.onrender.com

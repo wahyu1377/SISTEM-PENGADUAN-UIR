@@ -42,8 +42,13 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 50
     MAX_DOCUMENTS_RETRIEVED: int = 5
 
-    # CORS
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173"]
+    # CORS - Allow localhost for development and Render frontend
+    CORS_ORIGINS: list = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8000",
+        "https://uir-complaints-frontend.onrender.com",
+    ]
 
     # File Upload
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
