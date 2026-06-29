@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -98,6 +98,7 @@ import { id } from 'date-fns/locale'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const isLoggingOut = ref(false)
 
 const userName = computed(() => authStore.user?.name || 'Mahasiswa')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
@@ -128,35 +129,26 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-onMounted(async () => {
-  if (!authStore.user) {
-    await authStore.checkAuth()
-  }
-})
+const handleLogout = () => {
+  // Set flag to prevent race conditions
+  isLoggingOut.value = true
 
-const handleLogout = async () => {
-  // Clear token first before any API call
-  const token = localStorage.getItem('token')
+  // Clear everything immediately - no API call needed
   localStorage.removeItem('token')
   authStore.user = null
   authStore.token = null
 
-  // Try to call logout API (optional, don't fail if it doesn't work)
-  try {
-    if (token) {
-      await fetch(`${import.meta.env.VITE_API_URL || ''}/api/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-    }
-  } catch (e) {
-    // Ignore logout API errors, we already cleared the token
-  }
-
-  // Redirect to login
-  window.location.href = '/login'
+  // Hard redirect to login page to clear all state
+  window.location.replace('/login')
 }
+
+onMounted(async () => {
+  // Skip if logging out
+  if (isLoggingOut.value) return
+
+  // Only check auth if we have a token but no user data
+  if (!authStore.user && authStore.token) {
+    await authStore.checkAuth()
+  }
+})
 </script>

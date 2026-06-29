@@ -36,17 +36,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Don't redirect if already on login page or if it's a logout request
-    const isLoginPage = window.location.pathname === '/login'
+    // Skip redirect for certain cases
+    const currentPath = window.location.pathname
+    const isAuthPage = currentPath === '/login' || currentPath === '/register'
     const isLogoutRequest = error.config?.url?.includes('/logout')
+    const isAuthRequest = error.config?.url?.includes('/auth/')
 
-    if (error.response?.status === 401 && !isLoginPage && !isLogoutRequest) {
+    // Only redirect on 401 if not already on auth pages
+    if (error.response?.status === 401 && !isAuthPage && !isLogoutRequest) {
       localStorage.removeItem('token')
-      // Only redirect if not already on login page
-      if (!isLoginPage) {
-        window.location.href = '/login'
-      }
+      // Redirect to login
+      window.location.href = '/login'
     }
+
+    // For auth requests (login/register), don't redirect on error
+    if (isAuthRequest) {
+      return Promise.reject(error)
+    }
+
     return Promise.reject(error)
   }
 )

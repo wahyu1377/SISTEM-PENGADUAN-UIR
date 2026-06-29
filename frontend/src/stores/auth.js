@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', {
       return response
     },
 
-    async logout() {
-      // Clear state first
+    logout() {
+      // Clear state synchronously
       this.user = null
       this.token = null
       localStorage.removeItem('token')
