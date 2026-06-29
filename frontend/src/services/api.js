@@ -42,13 +42,10 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // Only redirect on 401 if not already on auth pages
-    const currentPath = window.location.pathname
-    const isAuthPage = currentPath === '/login' || currentPath === '/register'
-
-    if (error.response?.status === 401 && !isAuthPage) {
+    // Only clear token on 401, don't redirect
+    // Navigation will be handled by the component that made the request
+    if (error.response?.status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
     }
 
     return Promise.reject(error)
