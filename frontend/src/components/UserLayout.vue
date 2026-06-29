@@ -130,16 +130,13 @@ const isActive = (path) => {
 }
 
 const handleLogout = () => {
-  // Set flag to prevent race conditions
-  isLoggingOut.value = true
-
-  // Clear everything immediately - no API call needed
+  // Clear everything immediately
   localStorage.removeItem('token')
   authStore.user = null
   authStore.token = null
 
-  // Hard redirect to login page to clear all state
-  window.location.replace('/login')
+  // Use Vue Router to navigate (this properly unmounts components and cancels pending requests)
+  router.push('/login')
 }
 
 onMounted(async () => {

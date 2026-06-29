@@ -1,14 +1,30 @@
 import axios from 'axios'
 
-// Handle VITE_API_URL with or without trailing slash
+// API Base URL Configuration
+// In production, use the VITE_API_URL environment variable
+// Fallback to hardcoded URL if not available
+const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
+
 const getBaseURL = () => {
-  const envUrl = import.meta.env.VITE_API_URL
-  if (envUrl) {
-    // Remove trailing slash and add /api
+  // Check for environment variable
+  const envUrl = import.meta.env?.VITE_API_URL
+
+  if (envUrl && envUrl.trim()) {
+    // Clean up the URL - remove trailing slashes
     const baseUrl = envUrl.replace(/\/+$/, '')
+    console.log('Using API URL from environment:', baseUrl)
     return `${baseUrl}/api`
   }
-  return '/api'
+
+  // Development fallback
+  if (import.meta.env.DEV) {
+    console.log('Using development API URL: /api')
+    return '/api'
+  }
+
+  // Production fallback - use hardcoded URL
+  console.log('Using production API URL:', PRODUCTION_API_URL)
+  return `${PRODUCTION_API_URL}/api`
 }
 
 const api = axios.create({
@@ -16,7 +32,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  // Increase timeout for production
   timeout: 15000
 })
 
@@ -45,13 +60,7 @@ api.interceptors.response.use(
     // Only redirect on 401 if not already on auth pages
     if (error.response?.status === 401 && !isAuthPage && !isLogoutRequest) {
       localStorage.removeItem('token')
-      // Redirect to login
       window.location.href = '/login'
-    }
-
-    // For auth requests (login/register), don't redirect on error
-    if (isAuthRequest) {
-      return Promise.reject(error)
     }
 
     return Promise.reject(error)
@@ -68,12 +77,9 @@ export const authService = {
 }
 
 export const complaintService = {
-  // Mahasiswa endpoints
   getMyComplaints: (params) => api.get('/complaints', { params }),
   getComplaint: (id) => api.get(`/complaints/${id}`),
   createComplaint: (data) => api.post('/complaints', data),
-
-  // Admin endpoints
   getAllComplaints: (params) => api.get('/admin/complaints', { params }),
   getAdminComplaint: (id) => api.get(`/admin/complaints/${id}`),
   updateComplaint: (id, data) => api.put(`/admin/complaints/${id}`, data),
