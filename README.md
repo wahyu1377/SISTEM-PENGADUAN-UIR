@@ -16,7 +16,7 @@ Sistem Pengaduan Mahasiswa Universitas Islam Riau Berbasis Retrieval-Augmented G
 - **Tracking Status** - Pantau status pengaduan dari awal hingga selesai
 - **Analytics Dashboard** - Statistik dan visualisasi data pengaduan
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Backend
 
