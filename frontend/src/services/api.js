@@ -1,21 +1,13 @@
 import axios from 'axios'
 
 // API Base URL Configuration
-const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
+// FORCIBLY use hardcoded production URL to avoid environment variable issues
+const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com/api'
 
 const getBaseURL = () => {
-  const envUrl = import.meta.env?.VITE_API_URL
-
-  if (envUrl && envUrl.trim()) {
-    const baseUrl = envUrl.replace(/\/+$/, '')
-    return `${baseUrl}/api`
-  }
-
-  if (import.meta.env.DEV) {
-    return '/api'
-  }
-
-  return `${PRODUCTION_API_URL}/api`
+  // Always use hardcoded production URL
+  // This ensures the app works regardless of environment variable issues
+  return PRODUCTION_API_URL
 }
 
 // Flag to temporarily disable error handling (during logout)
