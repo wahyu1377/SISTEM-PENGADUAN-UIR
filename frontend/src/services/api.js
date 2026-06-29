@@ -1,31 +1,25 @@
 import axios from 'axios'
 
 // API Base URL Configuration
-// In production, use the VITE_API_URL environment variable
-// Fallback to hardcoded URL if not available
 const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
 
 const getBaseURL = () => {
-  // Check for environment variable
   const envUrl = import.meta.env?.VITE_API_URL
 
   if (envUrl && envUrl.trim()) {
-    // Clean up the URL - remove trailing slashes
     const baseUrl = envUrl.replace(/\/+$/, '')
-    console.log('Using API URL from environment:', baseUrl)
     return `${baseUrl}/api`
   }
 
-  // Development fallback
   if (import.meta.env.DEV) {
-    console.log('Using development API URL: /api')
     return '/api'
   }
 
-  // Production fallback - use hardcoded URL
-  console.log('Using production API URL:', PRODUCTION_API_URL)
   return `${PRODUCTION_API_URL}/api`
 }
+
+// Flag to temporarily disable error handling (during logout)
+let isLoggingOut = false
 
 const api = axios.create({
   baseURL: getBaseURL(),
@@ -51,14 +45,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Skip redirect for certain cases
-    const currentPath = window.location.pathname
-    const isAuthPage = currentPath === '/login' || currentPath === '/register'
-    const isLogoutRequest = error.config?.url?.includes('/logout')
-    const isAuthRequest = error.config?.url?.includes('/auth/')
+    // If we're logging out, just reject without any redirect logic
+    if (isLoggingOut) {
+      return Promise.reject(error)
+    }
 
     // Only redirect on 401 if not already on auth pages
-    if (error.response?.status === 401 && !isAuthPage && !isLogoutRequest) {
+    const currentPath = window.location.pathname
+    const isAuthPage = currentPath === '/login' || currentPath === '/register'
+
+    if (error.response?.status === 401 && !isAuthPage) {
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
@@ -66,6 +62,11 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Export function to set logout state
+export const setLoggingOut = (value) => {
+  isLoggingOut = value
+}
 
 export const authService = {
   login: (data) => api.post('/auth/login', data),
