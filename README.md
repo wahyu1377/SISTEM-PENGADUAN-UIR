@@ -7,7 +7,7 @@
 
 Sistem Pengaduan Mahasiswa Universitas Islam Riau Berbasis Retrieval-Augmented Generation (RAG) adalah aplikasi berbasis web yang dirancang untuk memfasilitasi mahasiswa dalam menyampaikan pengaduan secara terpusat dengan bantuan Artificial Intelligence untuk analisis dan klasifikasi.
 
-## 🌟 Fitur Utama
+##  Fitur Utama
 
 - **Penyampaian Pengaduan Terpusat** - Media terpusat bagi mahasiswa untuk menyampaikan pengaduan
 - **Dashboard Admin** - Pengelolaan seluruh pengaduan dalam satu dashboard
@@ -31,13 +31,13 @@ Sistem Pengaduan Mahasiswa Universitas Islam Riau Berbasis Retrieval-Augmented G
 - **React.js / Vue.js**
 - **TailwindCSS**
 
-## 📋 Prerequisites
+##  Prerequisites
 
 1. **Python 3.11+**
 2. **MongoDB Atlas Account** ([Sign up here](https://www.mongodb.com/cloud/atlas))
 3. **OpenAI API Key** ([Get key here](https://platform.openai.com/api-keys))
 
-## 🚀 Installation
+##  Installation
 
 ### 1. Clone Repository
 
@@ -92,7 +92,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 - **ReDoc Documentation**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
 
-## 🐳 Running with Docker
+##  Running with Docker
 
 ```bash
 # Build and run
@@ -181,7 +181,7 @@ README.md
 | GET    | `/api/admin/analytics/trends`     | Trends data     |
 | GET    | `/api/admin/analytics/categories` | Category stats  |
 
-## 🧪 Running Tests
+##  Running Tests
 
 ```bash
 cd backend
@@ -243,15 +243,15 @@ Sistem ini menggunakan dokumen resmi universitas sebagai referensi:
 - Upload dokumen knowledge base
 - View analytics dashboard
 
-## 📄 License
+##  License
 
 This project is for academic purposes - Universitas Islam Riau.
 
-## 👨‍💻 Author
+##  Author
 
 Developed as part of Software Implementation course.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Universitas Islam Riau
 - Dosen Pembimbing
