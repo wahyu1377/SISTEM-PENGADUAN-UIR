@@ -1,11 +1,14 @@
 import axios from 'axios'
 
 // API Base URL Configuration
-const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com/api'
+// Use relative URL to go through nginx proxy in production
+// or hardcoded URL for direct backend access
+const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
 
 const getBaseURL = () => {
-  // Always use hardcoded production URL
-  return PRODUCTION_API_URL
+  // Use relative URL for nginx proxy
+  // This works when deployed behind nginx
+  return '/api'
 }
 
 const api = axios.create({
@@ -32,8 +35,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Just reject the error - don't try to redirect
-    // Let the component that made the request handle the error
     return Promise.reject(error)
   }
 )
