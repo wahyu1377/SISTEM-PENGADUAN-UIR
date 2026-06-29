@@ -42,12 +42,13 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 50
     MAX_DOCUMENTS_RETRIEVED: int = 5
 
-    # CORS - Allow localhost for development and Render frontend
+    # CORS - Allow localhost for development and all frontend deployments
     CORS_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:8000",
         "https://uir-complaints-frontend.onrender.com",
+        "https://sistem-pengaduan-uir-j9l5.vercel.app",
     ]
 
     # File Upload
