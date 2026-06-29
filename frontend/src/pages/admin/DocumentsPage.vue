@@ -298,28 +298,16 @@ const formatDate = (date) => {
 
 const loadStats = async () => {
   try {
-    const response = await fetch('/api/admin/documents/statistics/summary', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    if (response.ok) {
-      const data = await response.json()
-      // Parse response yang berbeda dari backend
-      const categories = data.by_category || {}
-      const categoryKeys = Object.keys(categories)
-      let totalChunks = 0
-      categoryKeys.forEach(key => {
-        totalChunks += categories[key].total_chunks || 0
-      })
-      stats.value = {
-        total_documents: data.total_documents || 0,
-        total_chunks: totalChunks,
-        total_categories: categoryKeys.length
-      }
+    const response = await documentService.getDocuments({ per_page: 1 })
+    // Get basic stats from document list response or use default
+    stats.value = {
+      total_documents: response.data.total || 0,
+      total_chunks: 0,
+      total_categories: 0
     }
   } catch (e) {
     console.error('Failed to load stats:', e)
+    stats.value = { total_documents: 0, total_chunks: 0, total_categories: 0 }
   }
 }
 
