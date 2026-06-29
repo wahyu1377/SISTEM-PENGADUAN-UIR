@@ -1,14 +1,16 @@
 import axios from 'axios'
 
 // API Base URL Configuration
-// Use relative URL to go through nginx proxy in production
-// or hardcoded URL for direct backend access
+// In production, use absolute URL to backend
 const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
 
 const getBaseURL = () => {
-  // Use relative URL for nginx proxy
-  // This works when deployed behind nginx
-  return '/api'
+  // In development, use relative URL
+  if (import.meta.env.DEV) {
+    return '/api'
+  }
+  // In production, use absolute URL to backend
+  return PRODUCTION_API_URL + '/api'
 }
 
 const api = axios.create({

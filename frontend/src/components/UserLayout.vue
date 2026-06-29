@@ -128,18 +128,15 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-// Frontend production URL
-const FRONTEND_URL = 'https://uir-complaints-frontend.onrender.com'
-
-// Simple logout using full URL - most reliable method
+// Simple logout using Vue Router - most reliable for SPA
 const handleLogout = () => {
   // Clear all auth data first
   localStorage.removeItem('token')
   authStore.user = null
   authStore.token = null
 
-  // Use full URL to ensure correct navigation
-  window.location.replace(FRONTEND_URL + '/login')
+  // Use Vue Router to navigate - this is the most reliable for SPA
+  router.push('/login')
 }
 
 // Skip auth check on mount to avoid unnecessary API calls
