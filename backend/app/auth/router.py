@@ -132,3 +132,67 @@ async def logout(
 ):
     """Logout current user (client should discard token)."""
     return {"message": "Berhasil logout"}
+
+# Seed endpoint for initial setup (should be disabled in production)
+@router.post("/seed", tags=["Setup"])
+async def seed_users(
+    service: AuthService = Depends(get_auth_service),
+    secret_key: str = None
+):
+    """Seed initial users for the system. Requires secret key."""
+    from app.core.config import settings
+
+    # Simple protection - change this or disable in production
+    expected_key = "uir-seed-2024"
+    if secret_key != expected_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid secret key"
+        )
+
+    # Check if admin already exists
+    existing_admin = await service.collection.find_one({"email": "admin@uir.ac.id"})
+    if existing_admin:
+        return {
+            "message": "Users already seeded",
+            "users_created": 0
+        }
+
+    # Create users
+    users_to_create = [
+        {"email": "admin@uir.ac.id", "name": "Administrator", "password": "admin123456", "role": "admin"},
+        {"email": "test@uir.ac.id", "name": "Test User", "password": "test123456", "role": "mahasiswa", "npm": "2109010001"},
+        {"email": "mahasiswa1@uir.ac.id", "name": "Mahasiswa Satu", "password": "password123", "role": "mahasiswa", "npm": "2109010002"},
+        {"email": "andimahasiswa@uir.ac.id", "name": "Andi Mahasiswa", "password": "test123456", "role": "mahasiswa", "npm": "2109010003"},
+        {"email": "student2024@uir.ac.id", "name": "Student 2024", "password": "test123456", "role": "mahasiswa", "npm": "2409010001"},
+    ]
+
+    created = 0
+    for user_data in users_to_create:
+        try:
+            await service.create_admin_user(
+                email=user_data["email"],
+                name=user_data["name"],
+                password=user_data["password"]
+            )
+            # Update role if mahasiswa
+            if user_data["role"] == "mahasiswa":
+                await service.collection.update_one(
+                    {"email": user_data["email"]},
+                    {"$set": {"role": "mahasiswa", "npm": user_data.get("npm")}}
+                )
+            created += 1
+        except Exception as e:
+            print(f"Error creating user {user_data['email']}: {e}")
+
+    return {
+        "message": f"Successfully created {created} users",
+        "users_created": created,
+        "credentials": [
+            {"email": "admin@uir.ac.id", "password": "admin123456", "role": "admin"},
+            {"email": "test@uir.ac.id", "password": "test123456", "role": "mahasiswa"},
+            {"email": "mahasiswa1@uir.ac.id", "password": "password123", "role": "mahasiswa"},
+            {"email": "andimahasiswa@uir.ac.id", "password": "test123456", "role": "mahasiswa"},
+            {"email": "student2024@uir.ac.id", "password": "test123456", "role": "mahasiswa"},
+        ]
+    }
