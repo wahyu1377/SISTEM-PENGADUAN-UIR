@@ -78,6 +78,13 @@ const routes = [
     name: 'AdminStatistics',
     component: () => import('@/pages/admin/StatisticsPage.vue'),
     meta: { requiresAuth: true, admin: true }
+  },
+  // Catch-all route for 404
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/pages/LoginPage.vue'),
+    meta: { guest: true }
   }
 ]
 
