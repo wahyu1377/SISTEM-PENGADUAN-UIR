@@ -1,24 +1,19 @@
 import axios from 'axios'
 
-// API Base URL Configuration
-// In production, use absolute URL to backend
-const PRODUCTION_API_URL = 'https://uir-complaints-backend.onrender.com'
-
+// Handle VITE_API_URL with or without trailing slash
 const getBaseURL = () => {
-  // In development, use relative URL
-  if (import.meta.env.DEV) {
-    return '/api'
+  if (import.meta.env.VITE_API_URL) {
+    const baseUrl = import.meta.env.VITE_API_URL.replace(/\/$/, '')
+    return `${baseUrl}/api`
   }
-  // In production, use absolute URL to backend
-  return PRODUCTION_API_URL + '/api'
+  return '/api'
 }
 
 const api = axios.create({
   baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json'
-  },
-  timeout: 15000
+  }
 })
 
 // Request interceptor to add auth token
@@ -33,10 +28,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response interceptor - simple error handling
+// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
     return Promise.reject(error)
   }
 )
@@ -51,9 +50,12 @@ export const authService = {
 }
 
 export const complaintService = {
+  // Mahasiswa endpoints
   getMyComplaints: (params) => api.get('/complaints', { params }),
   getComplaint: (id) => api.get(`/complaints/${id}`),
   createComplaint: (data) => api.post('/complaints', data),
+
+  // Admin endpoints
   getAllComplaints: (params) => api.get('/admin/complaints', { params }),
   getAdminComplaint: (id) => api.get(`/admin/complaints/${id}`),
   updateComplaint: (id, data) => api.put(`/admin/complaints/${id}`, data),

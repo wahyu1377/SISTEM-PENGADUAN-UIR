@@ -81,8 +81,8 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, computed, ref } from 'vue'
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import { onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
   LayoutDashboard,
@@ -128,19 +128,14 @@ const isActive = (path) => {
   return route.path.startsWith(path)
 }
 
-// Simple logout using Vue Router - most reliable for SPA
-const handleLogout = () => {
-  // Clear all auth data first
-  localStorage.removeItem('token')
-  authStore.user = null
-  authStore.token = null
-
-  // Use Vue Router to navigate - this is the most reliable for SPA
-  router.push('/login')
-}
-
-// Skip auth check on mount to avoid unnecessary API calls
 onMounted(async () => {
-  // Don't auto-check auth on mount - let the route guards handle it
+  if (!authStore.user) {
+    await authStore.checkAuth()
+  }
 })
+
+const handleLogout = () => {
+  authStore.logout()
+  window.location.href = '/login'
+}
 </script>
